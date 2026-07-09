@@ -36,6 +36,17 @@ npx serve .
 
 Then visit http://localhost:8000, sign up, and start trading.
 
+### Demo account
+
+A pre-seeded account is created the first time the app loads:
+
+- **Email:** `nicholas@fakekalshi.demo`
+- **Password:** `messi2026`
+
+It starts with a settled **6-leg World Cup combo** already in its Activity history
+(cost $999.65, won $3,891.05) and a balance of $12,891.40. Seed accounts are
+defined in `SEED_ACCOUNTS` in `js/data.js`.
+
 ## How your data is stored
 
 Everything (accounts, balances, positions, market prices) lives in your browser's

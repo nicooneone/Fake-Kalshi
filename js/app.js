@@ -536,6 +536,29 @@ function renderPortfolio(user) {
 /* ---------- activity ---------- */
 function renderActivity(user) {
   const rows = user.activity.slice(0, 200).map((a) => {
+    if (a.type === "combo_buy" || a.type === "combo_settle") {
+      const won = a.type === "combo_settle" && a.outcome === "won";
+      const c = a.combo;
+      const legCount = c.legs.reduce((s, l) => s + l.picks.length, 0);
+      return `
+        <tr>
+          <td>${fmtTime(a.t)}</td>
+          <td><b>${a.type === "combo_buy" ? "Combo buy" : "Combo settled"}</b>
+            ${a.type === "combo_settle" ? ` <span class="side-pill ${won ? "yes" : "no"}">${won ? "won 🎉" : "lost"}</span>` : ""}
+          </td>
+          <td>
+            <div class="combo-cell">
+              <b>⚽ ${esc(c.title)}</b>
+              ${c.legs.map((l) => `
+                <div class="combo-game">${esc(l.game)} <span>· ${esc(l.when)}</span></div>
+                ${l.picks.map((p) => `<div class="combo-pick">${a.type === "combo_settle" ? (won ? "✅" : "❌") : "•"} ${esc(p)}</div>`).join("")}
+              `).join("")}
+            </div>
+          </td>
+          <td class="mono">${legCount} legs · cost ${fmtUSD(c.costCents)}<br/>max payout ${fmtUSD(c.payoutCents)}</td>
+          <td class="mono ${a.amountCents >= 0 ? "pl-up" : "pl-down"}">${fmtUSD(a.amountCents, { sign: true })}</td>
+        </tr>`;
+    }
     const m = a.marketId ? getMarket(a.marketId) : null;
     const label = {
       buy: "Buy", sell: "Sell", settle: "Settlement", deposit: "Deposit",

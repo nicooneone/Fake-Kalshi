@@ -126,6 +126,29 @@ function demoHash(str) {
 function getUsers() { return loadJSON(LS_USERS, {}); }
 function saveUsers(users) { saveJSON(LS_USERS, users); }
 
+/* Pre-create demo accounts from SEED_ACCOUNTS the first time the app loads. */
+function initSeedAccounts() {
+  if (typeof SEED_ACCOUNTS === "undefined" || !SEED_ACCOUNTS.length) return;
+  const users = getUsers();
+  let changed = false;
+  for (const a of SEED_ACCOUNTS) {
+    const email = a.email.toLowerCase();
+    if (users[email]) continue;
+    users[email] = {
+      name: a.name,
+      email,
+      pass: demoHash(a.password),
+      balance: a.balance,
+      deposited: a.deposited,
+      positions: a.positions || [],
+      activity: a.activity || [],
+      createdAt: Date.now(),
+    };
+    changed = true;
+  }
+  if (changed) saveUsers(users);
+}
+
 function currentUser() {
   const email = localStorage.getItem(LS_SESSION);
   if (!email) return null;
@@ -293,3 +316,4 @@ function portfolioSummary(u) {
 }
 
 initMarkets();
+initSeedAccounts();

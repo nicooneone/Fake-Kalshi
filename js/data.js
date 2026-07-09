@@ -8,6 +8,61 @@ const CATEGORIES = [
   "Crypto", "Sports", "Climate", "Tech & Science", "Culture",
 ];
 
+/* Accounts pre-created the first time the app loads (demo seed data).
+ * Balances/activity are in cents; activity arrays are newest-first. */
+const SEED_ACCOUNTS = [
+  {
+    name: "Nicholas de Hombre",
+    email: "nicholas@fakekalshi.demo",
+    password: "messi2026",
+    balance: 1289140,    // $10,000 start − $999.65 combo cost + $3,891.05 payout
+    deposited: 1000000,
+    activity: [
+      {
+        t: Date.parse("2026-07-07T18:10:00-04:00"),
+        type: "combo_settle",
+        outcome: "won",
+        amountCents: 389105,
+        combo: {
+          title: "6 markets combo — FIFA World Cup",
+          costCents: 99965,
+          payoutCents: 389105,
+          legs: [
+            {
+              game: "Argentina vs Egypt", when: "Jul 7 @ 12:00pm EDT",
+              picks: ["Argentina advances", "Lionel Messi: 1+ goals", "Reg Time: Over 1.5 goals scored"],
+            },
+            {
+              game: "France vs Morocco", when: "Jul 7 @ 4:00pm EDT",
+              picks: ["France advances", "Kylian Mbappe: 1+ goals", "Reg Time: Over 1.5 goals scored"],
+            },
+          ],
+        },
+      },
+      {
+        t: Date.parse("2026-07-07T11:24:00-04:00"),
+        type: "combo_buy",
+        amountCents: -99965,
+        combo: {
+          title: "6 markets combo — FIFA World Cup",
+          costCents: 99965,
+          payoutCents: 389105,
+          legs: [
+            {
+              game: "Argentina vs Egypt", when: "Jul 7 @ 12:00pm EDT",
+              picks: ["Argentina advances", "Lionel Messi: 1+ goals", "Reg Time: Over 1.5 goals scored"],
+            },
+            {
+              game: "France vs Morocco", when: "Jul 7 @ 4:00pm EDT",
+              picks: ["France advances", "Kylian Mbappe: 1+ goals", "Reg Time: Over 1.5 goals scored"],
+            },
+          ],
+        },
+      },
+    ],
+  },
+];
+
 /* prob: starting probability (0–1) · vol: how jumpy the price is ·
  * closes: ISO date the market closes · volume: fake total contracts traded */
 const SEED_MARKETS = [
