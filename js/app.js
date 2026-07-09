@@ -39,7 +39,7 @@ function sparklineSVG(history, w = 260, h = 36) {
   const y = (p) => h - ((p - min) / (max - min || 1)) * h;
   const d = pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p.p).toFixed(1)}`).join(" ");
   const up = pts[pts.length - 1].p >= pts[0].p;
-  const color = up ? "#00b672" : "#e5484d";
+  const color = up ? "#00d991" : "#ff5a5f";
   return `<svg class="mc-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
     <path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>
   </svg>`;
@@ -57,12 +57,12 @@ function bigChartSVG(history, rangeMs, w = 800, h = 260) {
   const d = pts.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.p).toFixed(1)}`).join(" ");
   const last = pts[pts.length - 1];
   const up = last.p >= pts[0].p;
-  const color = up ? "#00b672" : "#e5484d";
+  const color = up ? "#00d991" : "#ff5a5f";
   const gridLines = [25, 50, 75].map((g) => {
     const gy = y(g);
     if (gy < 10 || gy > h - 10) return "";
-    return `<line x1="0" y1="${gy}" x2="${w}" y2="${gy}" stroke="#e6e8ec" stroke-dasharray="4 5"/>
-            <text x="${w - 4}" y="${gy - 5}" font-size="11" fill="#9aa1ad" text-anchor="end">${g}¢</text>`;
+    return `<line x1="0" y1="${gy}" x2="${w}" y2="${gy}" stroke="#232833" stroke-dasharray="4 5"/>
+            <text x="${w - 4}" y="${gy - 5}" font-size="11" fill="#626a77" text-anchor="end">${g}¢</text>`;
   }).join("");
   return `<svg class="chart-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
     ${gridLines}
@@ -73,18 +73,40 @@ function bigChartSVG(history, rangeMs, w = 800, h = 260) {
 }
 
 /* ---------- shared chrome ---------- */
+const BN_ICONS = {
+  explore: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>`,
+  live: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9.5a7 7 0 0 1 12 0"/><path d="M3.5 7a10.5 10.5 0 0 1 17 0"/><circle cx="12" cy="14" r="2.2" fill="currentColor" stroke="none"/><path d="M12 16.5V21"/></svg>`,
+  search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`,
+  social: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.7-3 3-4.5 5.5-4.5s4.8 1.5 5.5 4.5"/><circle cx="17" cy="9.5" r="2.5"/><path d="M16 14.7c2.2.2 4 1.5 4.5 4.3"/></svg>`,
+};
+
+function bottomNavHTML(user, active) {
+  const total = portfolioSummary(user).total;
+  const short = total >= 100000
+    ? "$" + Math.round(total / 100).toLocaleString()
+    : "$" + (total / 100).toFixed(2);
+  return `
+  <nav class="bottomnav">
+    <a href="#/" class="${active === "markets" ? "active" : ""}">${BN_ICONS.explore}Explore</a>
+    <a href="#/activity" class="${active === "activity" ? "active" : ""}">${BN_ICONS.live}Live</a>
+    <a href="#/portfolio" class="${active === "portfolio" ? "active" : ""}"><span class="bn-money">${short}</span>Portfolio</a>
+    <a href="#/search" class="${active === "search" ? "active" : ""}">${BN_ICONS.search}Search</a>
+    <a href="#/social" class="${active === "social" ? "active" : ""}">${BN_ICONS.social}Social</a>
+  </nav>`;
+}
+
 function navHTML(user, active) {
   const summary = portfolioSummary(user);
   return `
-  <div class="demo-banner">🎓 <b>Practice mode</b> — every dollar on this site is fake. Trade freely, learn fast.</div>
   <nav class="topnav">
     <a class="logo" href="#/">
-      <span class="logo-mark">FK</span> Kalshi <span class="fake-tag">Fake</span>
+      <span class="logo-mark"></span> Kalshi
     </a>
     <div class="nav-links">
       <a href="#/" class="${active === "markets" ? "active" : ""}">Markets</a>
       <a href="#/portfolio" class="${active === "portfolio" ? "active" : ""}">Portfolio</a>
-      <a href="#/activity" class="${active === "activity" ? "active" : ""}">Activity</a>
+      <a href="#/activity" class="${active === "activity" ? "active" : ""}">Live</a>
+      <a href="#/social" class="${active === "social" ? "active" : ""}">Social</a>
     </div>
     <div class="search-wrap">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -95,7 +117,7 @@ function navHTML(user, active) {
         <span class="bal-label">Cash</span>
         <span class="bal-amt mono">${fmtUSD(user.balance)}</span>
       </div>
-      <div class="balance-chip" title="Cash + market value of positions">
+      <div class="balance-chip portfolio-chip" title="Cash + market value of positions">
         <span class="bal-label">Portfolio</span>
         <span class="bal-amt mono" style="color:var(--navy)">${fmtUSD(summary.total)}</span>
       </div>
@@ -114,7 +136,8 @@ function navHTML(user, active) {
         </div>
       </div>
     </div>
-  </nav>`;
+  </nav>
+  ${bottomNavHTML(user, active)}`;
 }
 
 function wireChrome(user) {
@@ -176,6 +199,7 @@ const state = {
   search: "",
   ticket: { side: "yes", mode: "buy", qty: 10 }, // order ticket state on detail page
   chartRange: null, // ms window; null = all
+  portfolioTab: "open", // open | watchlist | history
 };
 
 function route() {
@@ -188,6 +212,8 @@ function route() {
   if (hash.startsWith("#/market/")) return { page: "market", id: hash.slice("#/market/".length) };
   if (hash === "#/portfolio") return { page: "portfolio" };
   if (hash === "#/activity") return { page: "activity" };
+  if (hash === "#/search") return { page: "search" };
+  if (hash === "#/social") return { page: "social" };
   return { page: "markets" };
 }
 
@@ -197,7 +223,7 @@ function renderAuth(mode) {
   app.innerHTML = `
   <div class="auth-wrap">
     <div class="auth-card">
-      <a class="logo" href="#/login"><span class="logo-mark">FK</span> Kalshi <span class="fake-tag">Fake</span></a>
+      <a class="logo" href="#/login"><span class="logo-mark"></span> Kalshi</a>
       <div class="auth-tag">The practice prediction market. 100% fake money.</div>
       <h1>${isLogin ? "Welcome back" : "Create your account"}</h1>
       <form id="auth-form">
@@ -323,6 +349,7 @@ function renderMarket(user, id) {
   const heldPos = t.side === "yes" ? yesPos : noPos;
   const canAfford = user.balance >= cost;
   const canSell = heldPos && heldPos.qty >= qty && qty > 0;
+  const watched = (user.watchlist || []).includes(id);
 
   const h = m.history;
   const dayAgo = Date.now() - 24 * 3600e3;
@@ -344,6 +371,7 @@ function renderMarket(user, id) {
                 <span>💵 ${fmtVol(m.volume)} volume</span>
               </div>
             </div>
+            <button class="watch-btn ${watched ? "on" : ""}" id="watch-btn" title="${watched ? "Remove from watchlist" : "Add to watchlist"}">${watched ? "★" : "☆"}</button>
           </div>
 
           <div class="big-chance">
@@ -448,6 +476,16 @@ function renderMarket(user, id) {
     b.onclick = () => { state.chartRange = b.dataset.ms === "" ? null : Number(b.dataset.ms); render(); };
   });
 
+  document.getElementById("watch-btn").onclick = () => {
+    updateUser((u) => {
+      u.watchlist = u.watchlist || [];
+      if (u.watchlist.includes(id)) u.watchlist = u.watchlist.filter((x) => x !== id);
+      else u.watchlist.push(id);
+    });
+    toast(watched ? "Removed from watchlist" : "Added to watchlist");
+    render();
+  };
+
   if (!m.settled) {
     app.querySelectorAll(".bs-tab").forEach((b) => { b.onclick = () => { t.mode = b.dataset.mode; render(); }; });
     app.querySelectorAll(".side-tab").forEach((b) => { b.onclick = () => { t.side = b.dataset.side; render(); }; });
@@ -479,8 +517,20 @@ function confirmSettle(id, outcome, title) {
 }
 
 /* ---------- portfolio ---------- */
-function renderPortfolio(user) {
-  const s = portfolioSummary(user);
+/* Net cash flow over the last 24h (trades, settlements, deposits). */
+function change24h(u) {
+  const cutoff = Date.now() - 24 * 3600e3;
+  return u.activity.filter((a) => a.t >= cutoff).reduce((s, a) => s + (a.amountCents || 0), 0);
+}
+
+function positionsTableHTML(user) {
+  if (!user.positions.length) {
+    return `<div class="empty-note">
+      <div class="empty-ico">〽️</div>
+      <div class="empty-big">No positions</div>
+      <div style="margin-top:8px"><a href="#/">Explore markets →</a></div>
+    </div>`;
+  }
   const rows = user.positions.map((pos) => {
     const m = getMarket(pos.marketId);
     const cur = pos.side === "yes" ? m.price : 100 - m.price;
@@ -497,28 +547,84 @@ function renderPortfolio(user) {
         <td><button class="mini-btn" data-sell="${m.id}|${pos.side}|${pos.qty}">Sell all</button></td>
       </tr>`;
   }).join("");
+  return `
+    <div class="table-wrap">
+      <table class="data-table">
+        <tr><th>Market</th><th>Side</th><th>Qty</th><th>Avg</th><th>Now</th><th>Value</th><th>Open P/L</th><th></th></tr>
+        ${rows}
+      </table>
+    </div>`;
+}
+
+function watchlistHTML(user) {
+  const list = (user.watchlist || []).map(getMarket).filter(Boolean);
+  if (!list.length) {
+    return `<div class="empty-note">
+      <div class="empty-ico">☆</div>
+      <div class="empty-big">No markets in watchlist</div>
+      <div style="margin-top:8px">Tap the star on any market page to watch it.</div>
+    </div>`;
+  }
+  return `<div class="market-grid">${list.map(marketCardHTML).join("")}</div>`;
+}
+
+function renderPortfolio(user) {
+  const s = portfolioSummary(user);
+  const ch = change24h(user);
+  const base = s.total - ch;
+  const chPct = base > 0 ? (ch / base) * 100 : 0;
+  const tab = state.portfolioTab;
 
   app.innerHTML = `
     ${navHTML(user, "portfolio")}
     <div class="page">
-      <div class="section-title">Portfolio</div>
-      <div class="stat-cards">
-        <div class="stat-card"><div class="sc-label">Total value</div><div class="sc-value mono">${fmtUSD(s.total)}</div></div>
-        <div class="stat-card"><div class="sc-label">Cash</div><div class="sc-value mono">${fmtUSD(user.balance)}</div></div>
-        <div class="stat-card"><div class="sc-label">In positions</div><div class="sc-value mono">${fmtUSD(s.posValue)}</div></div>
-        <div class="stat-card"><div class="sc-label">Open P/L</div><div class="sc-value mono ${s.openPL >= 0 ? "up" : "down"}">${fmtUSD(s.openPL, { sign: true })}</div></div>
-        <div class="stat-card"><div class="sc-label">All-time P/L</div><div class="sc-value mono ${s.allTimePL >= 0 ? "up" : "down"}">${fmtUSD(s.allTimePL, { sign: true })}</div></div>
+      <div class="pf-userrow">
+        <div class="pf-avatar"></div>
+        <div class="pf-handle">${esc(user.name)}</div>
+        <button class="pf-gear" id="pf-gear">⚙</button>
       </div>
-      ${user.positions.length ? `
-        <div class="table-wrap">
-          <table class="data-table">
-            <tr><th>Market</th><th>Side</th><th>Qty</th><th>Avg</th><th>Now</th><th>Value</th><th>Open P/L</th><th></th></tr>
-            ${rows}
-          </table>
-        </div>` : `<div class="empty-note">No open positions yet. <a href="#/" style="color:var(--green-dark);font-weight:700">Find a market →</a></div>`}
+      <div class="pf-titlerow">
+        <div class="section-title">Portfolio</div>
+        <button class="manage-funds" id="manage-funds">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/></svg>
+          Manage Funds
+        </button>
+      </div>
+      <div class="stat-cards">
+        <div class="pf-bigcards">
+          <div class="pf-bigcard sel">
+            <div class="bc-label">Predictions</div>
+            <div class="bc-value">${fmtUSD(s.total)}</div>
+          </div>
+          <div class="pf-bigcard dim">
+            <div class="bc-label">Perpetuals</div>
+            <div class="bc-value">$0.00</div>
+          </div>
+        </div>
+        <div class="pf-statrow">
+          <div class="pf-stat"><div class="ps-label">Change 24h</div><div class="ps-value ${ch >= 0 ? "up" : "down"}">${fmtUSD(ch, { sign: true })} (${ch >= 0 ? "+" : ""}${chPct.toFixed(2)}%)</div></div>
+          <div class="pf-stat"><div class="ps-label">All time</div><div class="ps-value ${s.allTimePL >= 0 ? "up" : "down"}">${fmtUSD(s.allTimePL, { sign: true })}</div></div>
+          <div class="pf-stat"><div class="ps-label">Positions</div><div class="ps-value">${fmtUSD(s.posValue)}</div></div>
+          <div class="pf-stat"><div class="ps-label">Cash</div><div class="ps-value">${fmtUSD(user.balance)}</div></div>
+        </div>
+      </div>
+      <div class="pf-tabs">
+        <button class="pf-tab ${tab === "open" ? "active" : ""}" data-tab="open">Open</button>
+        <button class="pf-tab ${tab === "watchlist" ? "active" : ""}" data-tab="watchlist">Watchlist</button>
+        <button class="pf-tab ${tab === "history" ? "active" : ""}" data-tab="history">History</button>
+      </div>
+      ${tab === "open" ? positionsTableHTML(user) : tab === "watchlist" ? watchlistHTML(user) : activityTableHTML(user)}
     </div>`;
 
   wireChrome(user);
+  document.getElementById("manage-funds").onclick = () => showDepositModal();
+  document.getElementById("pf-gear").onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById("avatar-dd").classList.toggle("open");
+  };
+  app.querySelectorAll(".pf-tab").forEach((b) => {
+    b.onclick = () => { state.portfolioTab = b.dataset.tab; render(); };
+  });
   app.querySelectorAll("tr.clickable").forEach((r) => {
     r.onclick = (e) => { if (!e.target.dataset.sell) location.hash = r.dataset.goto; };
   });
@@ -531,10 +637,20 @@ function renderPortfolio(user) {
       render();
     };
   });
+  app.querySelectorAll(".market-card").forEach((card) => {
+    card.onclick = () => (location.hash = card.dataset.goto);
+  });
 }
 
 /* ---------- activity ---------- */
-function renderActivity(user) {
+function activityTableHTML(user) {
+  if (!user.activity.length) {
+    return `<div class="empty-note">
+      <div class="empty-ico">🕐</div>
+      <div class="empty-big">No activity yet</div>
+      <div style="margin-top:8px">Your trades will show up here.</div>
+    </div>`;
+  }
   const rows = user.activity.slice(0, 200).map((a) => {
     if (a.type === "combo_buy" || a.type === "combo_settle") {
       const won = a.type === "combo_settle" && a.outcome === "won";
@@ -577,22 +693,82 @@ function renderActivity(user) {
         <td class="mono ${amt >= 0 ? "pl-up" : "pl-down"}">${fmtUSD(amt, { sign: true })}</td>
       </tr>`;
   }).join("");
+  return `
+    <div class="table-wrap">
+      <table class="data-table">
+        <tr><th>Time</th><th>Type</th><th>Market</th><th>Details</th><th>Amount</th></tr>
+        ${rows}
+      </table>
+    </div>`;
+}
 
+function renderActivity(user) {
   app.innerHTML = `
     ${navHTML(user, "activity")}
     <div class="page">
       <div class="section-title">Activity</div>
-      ${user.activity.length ? `
-        <div class="table-wrap">
-          <table class="data-table">
-            <tr><th>Time</th><th>Type</th><th>Market</th><th>Details</th><th>Amount</th></tr>
-            ${rows}
-          </table>
-        </div>` : `<div class="empty-note">No activity yet — your trades will show up here.</div>`}
+      ${activityTableHTML(user)}
     </div>`;
-
   wireChrome(user);
   app.querySelectorAll("tr.clickable").forEach((r) => { r.onclick = () => (location.hash = r.dataset.goto); });
+}
+
+/* ---------- search ---------- */
+function renderSearch(user) {
+  const q = state.search.trim().toLowerCase();
+  const list = q
+    ? allMarkets().filter((m) => m.title.toLowerCase().includes(q) || m.category.toLowerCase().includes(q))
+    : [];
+  app.innerHTML = `
+    ${navHTML(user, "search")}
+    <div class="page">
+      <div class="section-title">Search</div>
+      <div class="search-wrap" style="display:block;max-width:none;margin-top:14px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="search-page-input" type="text" placeholder="Search markets" value="${esc(state.search)}" />
+      </div>
+      ${q
+        ? `<div class="market-grid">${list.map(marketCardHTML).join("") || ""}</div>
+           ${list.length ? "" : `<div class="empty-note"><div class="empty-ico">🔍</div><div class="empty-big">No markets found</div></div>`}`
+        : `<div class="empty-note"><div class="empty-ico">🔍</div><div class="empty-big">Search markets</div><div style="margin-top:8px">Politics, sports, crypto, climate and more.</div></div>`}
+    </div>`;
+  wireChrome(user);
+  const input = document.getElementById("search-page-input");
+  input.oninput = () => { state.search = input.value; renderPreservingFocus(); };
+  app.querySelectorAll(".market-card").forEach((card) => {
+    card.onclick = (e) => {
+      const quick = e.target.dataset && e.target.dataset.quick;
+      if (quick) state.ticket = { side: quick, mode: "buy", qty: 10 };
+      location.hash = card.dataset.goto;
+    };
+  });
+}
+
+/* ---------- social ---------- */
+function renderSocial(user) {
+  const ranked = Object.values(getUsers())
+    .map((u) => ({ u, s: portfolioSummary(u) }))
+    .sort((a, b) => b.s.total - a.s.total);
+  app.innerHTML = `
+    ${navHTML(user, "social")}
+    <div class="page">
+      <div class="section-title">Social</div>
+      <p style="color:var(--text-3);margin-top:6px;font-size:13.5px">Leaderboard — every trader on this device, ranked by portfolio value.</p>
+      ${ranked.map((r, i) => `
+        <div class="lb-row">
+          <div class="lb-rank">${i + 1}</div>
+          <div class="pf-avatar" style="width:38px;height:38px"></div>
+          <div>
+            <div class="lb-name">${esc(r.u.name)}${r.u.email === user.email ? " · you" : ""}</div>
+            <div class="lb-sub">${r.u.positions.length} open position${r.u.positions.length === 1 ? "" : "s"}</div>
+          </div>
+          <div class="lb-right">
+            <div class="lb-total">${fmtUSD(r.s.total)}</div>
+            <div class="lb-sub ${r.s.allTimePL >= 0 ? "pl-up" : "pl-down"}">${fmtUSD(r.s.allTimePL, { sign: true })} all time</div>
+          </div>
+        </div>`).join("")}
+    </div>`;
+  wireChrome(user);
 }
 
 /* ---------- render loop ---------- */
@@ -606,6 +782,8 @@ function render() {
     case "market": return renderMarket(user, r.id);
     case "portfolio": return renderPortfolio(user);
     case "activity": return renderActivity(user);
+    case "search": return renderSearch(user);
+    case "social": return renderSocial(user);
     default: return renderMarkets(user);
   }
 }
