@@ -1,4 +1,21 @@
 /* ============ Fake Kalshi — dark theme (Kalshi-app style) ============ */
+
+/* Space Mono (SIL OFL) — the money/number face */
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/SpaceMono-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/SpaceMono-Bold.woff2") format("woff2");
+}
+
 :root {
   --green: #00d991;
   --green-dim: rgba(0, 217, 145, 0.12);
@@ -14,7 +31,7 @@
   --text-3: #626a77;
   --shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
   --radius: 14px;
-  --money-font: "SF Mono", ui-monospace, "Cascadia Mono", "Roboto Mono", Menlo, monospace;
+  --money-font: "Space Mono", "SF Mono", ui-monospace, Menlo, monospace;
   font-size: 15px;
 }
 
