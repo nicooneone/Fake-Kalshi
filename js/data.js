@@ -9,56 +9,85 @@ const CATEGORIES = [
 ];
 
 /* Accounts pre-created the first time the app loads (demo seed data).
- * Balances/activity are in cents; activity arrays are newest-first. */
+ * Balances/activity are in cents; activity arrays are newest-first.
+ * Bump SEED_VERSION to re-apply seed accounts in browsers that already
+ * created them (resets those accounts to this seed state). */
+const SEED_VERSION = 2;
+
+const WC_COMBO = {
+  title: "6 markets combo — FIFA World Cup",
+  costCents: 99965,
+  payoutCents: 389105,
+  legs: [
+    {
+      game: "Argentina vs Egypt", when: "Jul 7 @ 12:00pm EDT",
+      picks: ["Argentina advances", "Lionel Messi: 1+ goals", "Reg Time: Over 1.5 goals scored"],
+    },
+    {
+      game: "France vs Morocco", when: "Jul 7 @ 4:00pm EDT",
+      picks: ["France advances", "Kylian Mbappe: 1+ goals", "Reg Time: Over 1.5 goals scored"],
+    },
+  ],
+};
+
+const NBA_COMBO = {
+  title: "4 markets combo — NBA Finals",
+  costCents: 218500,
+  payoutCents: 786000,
+  legs: [
+    {
+      game: "Thunder vs Pacers · Game 6", when: "Jun 19 @ 8:30pm EDT",
+      picks: ["Thunder win", "Shai Gilgeous-Alexander: 30+ points"],
+    },
+    {
+      game: "Thunder vs Pacers · Game 7", when: "Jun 22 @ 8:00pm EDT",
+      picks: ["Series goes to Game 7", "Over 205.5 total points"],
+    },
+  ],
+};
+
+const MLB_COMBO = {
+  title: "4 markets combo — MLB",
+  costCents: 172109,
+  payoutCents: 615000,
+  legs: [
+    {
+      game: "Yankees vs Red Sox", when: "Jun 27 @ 7:05pm EDT",
+      picks: ["Yankees win", "Aaron Judge: 1+ home runs"],
+    },
+    {
+      game: "Dodgers vs Giants", when: "Jun 27 @ 9:45pm EDT",
+      picks: ["Dodgers win", "Over 8.5 total runs"],
+    },
+  ],
+};
+
 const SEED_ACCOUNTS = [
   {
     name: "Nicholas de Hombre",
     email: "nicholas@fakekalshi.demo",
     password: "messi2026",
-    balance: 1289140,    // $10,000 start − $999.65 combo cost + $3,891.05 payout
+    balance: 724934,   // $10,000 start + all activity below = $7,249.34
     deposited: 1000000,
     activity: [
-      {
-        t: Date.parse("2026-07-07T18:10:00-04:00"),
-        type: "combo_settle",
-        outcome: "won",
-        amountCents: 389105,
-        combo: {
-          title: "6 markets combo — FIFA World Cup",
-          costCents: 99965,
-          payoutCents: 389105,
-          legs: [
-            {
-              game: "Argentina vs Egypt", when: "Jul 7 @ 12:00pm EDT",
-              picks: ["Argentina advances", "Lionel Messi: 1+ goals", "Reg Time: Over 1.5 goals scored"],
-            },
-            {
-              game: "France vs Morocco", when: "Jul 7 @ 4:00pm EDT",
-              picks: ["France advances", "Kylian Mbappe: 1+ goals", "Reg Time: Over 1.5 goals scored"],
-            },
-          ],
-        },
-      },
-      {
-        t: Date.parse("2026-07-07T11:24:00-04:00"),
-        type: "combo_buy",
-        amountCents: -99965,
-        combo: {
-          title: "6 markets combo — FIFA World Cup",
-          costCents: 99965,
-          payoutCents: 389105,
-          legs: [
-            {
-              game: "Argentina vs Egypt", when: "Jul 7 @ 12:00pm EDT",
-              picks: ["Argentina advances", "Lionel Messi: 1+ goals", "Reg Time: Over 1.5 goals scored"],
-            },
-            {
-              game: "France vs Morocco", when: "Jul 7 @ 4:00pm EDT",
-              picks: ["France advances", "Kylian Mbappe: 1+ goals", "Reg Time: Over 1.5 goals scored"],
-            },
-          ],
-        },
-      },
+      { t: Date.parse("2026-07-07T18:10:00-04:00"), type: "combo_settle", outcome: "won", amountCents: 389105, combo: WC_COMBO },
+      { t: Date.parse("2026-07-07T11:24:00-04:00"), type: "combo_buy", amountCents: -99965, combo: WC_COMBO },
+      { t: Date.parse("2026-07-06T17:25:00-04:00"), type: "sell", marketId: "eth-8k", side: "yes", qty: 1500, priceCents: 17, amountCents: 24018, fee: 1482 },
+      { t: Date.parse("2026-07-03T09:55:00-04:00"), type: "sell", marketId: "btc-150k", side: "yes", qty: 2000, priceCents: 29, amountCents: 55117, fee: 2883 },
+      { t: Date.parse("2026-07-02T13:10:00-04:00"), type: "sell", marketId: "fed-cut-sep", side: "yes", qty: 400, priceCents: 66, amountCents: 25771, fee: 629 },
+      { t: Date.parse("2026-07-01T15:30:00-04:00"), type: "sell", marketId: "sp500-7000", side: "yes", qty: 3000, priceCents: 36, amountCents: 103161, fee: 4839 },
+      { t: Date.parse("2026-07-01T10:45:00-04:00"), type: "buy", marketId: "eth-8k", side: "yes", qty: 1500, priceCents: 30, amountCents: -47205, fee: 2205 },
+      { t: Date.parse("2026-06-30T11:00:00-04:00"), type: "buy", marketId: "fed-cut-sep", side: "yes", qty: 400, priceCents: 58, amountCents: -23883, fee: 683 },
+      { t: Date.parse("2026-06-29T16:20:00-04:00"), type: "sell", marketId: "world-cup-host-win", side: "no", qty: 1200, priceCents: 84, amountCents: 99671, fee: 1129 },
+      { t: Date.parse("2026-06-28T20:45:00-04:00"), type: "combo_settle", outcome: "lost", amountCents: 0, combo: MLB_COMBO },
+      { t: Date.parse("2026-06-27T09:30:00-04:00"), type: "buy", marketId: "btc-150k", side: "yes", qty: 2000, priceCents: 41, amountCents: -85387, fee: 3387 },
+      { t: Date.parse("2026-06-26T19:15:00-04:00"), type: "combo_buy", amountCents: -172109, combo: MLB_COMBO },
+      { t: Date.parse("2026-06-25T14:12:00-04:00"), type: "buy", marketId: "sp500-7000", side: "yes", qty: 3000, priceCents: 48, amountCents: -149242, fee: 5242 },
+      { t: Date.parse("2026-06-24T12:40:00-04:00"), type: "sell", marketId: "house-flip", side: "no", qty: 4000, priceCents: 28, amountCents: 106355, fee: 5645 },
+      { t: Date.parse("2026-06-23T23:05:00-04:00"), type: "combo_settle", outcome: "lost", amountCents: 0, combo: NBA_COMBO },
+      { t: Date.parse("2026-06-20T12:30:00-04:00"), type: "buy", marketId: "house-flip", side: "no", qty: 4000, priceCents: 45, amountCents: -186931, fee: 6931 },
+      { t: Date.parse("2026-06-19T18:00:00-04:00"), type: "combo_buy", amountCents: -218500, combo: NBA_COMBO },
+      { t: Date.parse("2026-06-18T10:05:00-04:00"), type: "buy", marketId: "world-cup-host-win", side: "no", qty: 1200, priceCents: 78, amountCents: -95042, fee: 1442 },
     ],
   },
 ];

@@ -672,7 +672,7 @@ function activityTableHTML(user) {
             </div>
           </td>
           <td class="mono">${legCount} legs · cost ${fmtUSD(c.costCents)}<br/>max payout ${fmtUSD(c.payoutCents)}</td>
-          <td class="mono ${a.amountCents >= 0 ? "pl-up" : "pl-down"}">${fmtUSD(a.amountCents, { sign: true })}</td>
+          <td class="mono ${a.amountCents > 0 ? "pl-up" : a.amountCents < 0 ? "pl-down" : ""}">${a.amountCents === 0 ? "$0.00" : fmtUSD(a.amountCents, { sign: true })}</td>
         </tr>`;
     }
     const m = a.marketId ? getMarket(a.marketId) : null;
@@ -690,7 +690,7 @@ function activityTableHTML(user) {
         <td><b>${label}</b>${a.type === "settle" ? ` <span class="side-pill ${a.outcome}">${a.outcome}</span>` : ""}</td>
         <td>${detail}</td>
         <td class="mono">${qtyStr}</td>
-        <td class="mono ${amt >= 0 ? "pl-up" : "pl-down"}">${fmtUSD(amt, { sign: true })}</td>
+        <td class="mono ${amt > 0 ? "pl-up" : amt < 0 ? "pl-down" : ""}">${amt === 0 ? "$0.00" : fmtUSD(amt, { sign: true })}</td>
       </tr>`;
   }).join("");
   return `

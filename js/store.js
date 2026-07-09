@@ -126,14 +126,19 @@ function demoHash(str) {
 function getUsers() { return loadJSON(LS_USERS, {}); }
 function saveUsers(users) { saveJSON(LS_USERS, users); }
 
-/* Pre-create demo accounts from SEED_ACCOUNTS the first time the app loads. */
+/* Pre-create demo accounts from SEED_ACCOUNTS on first load. When
+ * SEED_VERSION is bumped, existing seed accounts are reset to the new
+ * seed state (regular user accounts are never touched). */
 function initSeedAccounts() {
   if (typeof SEED_ACCOUNTS === "undefined" || !SEED_ACCOUNTS.length) return;
+  const verKey = "fk_seed_version";
+  const want = String(typeof SEED_VERSION === "undefined" ? 1 : SEED_VERSION);
+  const reseed = localStorage.getItem(verKey) !== want;
   const users = getUsers();
   let changed = false;
   for (const a of SEED_ACCOUNTS) {
     const email = a.email.toLowerCase();
-    if (users[email]) continue;
+    if (users[email] && !reseed) continue;
     users[email] = {
       name: a.name,
       email,
@@ -142,11 +147,13 @@ function initSeedAccounts() {
       deposited: a.deposited,
       positions: a.positions || [],
       activity: a.activity || [],
-      createdAt: Date.now(),
+      watchlist: (users[email] && users[email].watchlist) || [],
+      createdAt: (users[email] && users[email].createdAt) || Date.now(),
     };
     changed = true;
   }
   if (changed) saveUsers(users);
+  localStorage.setItem(verKey, want);
 }
 
 function currentUser() {
