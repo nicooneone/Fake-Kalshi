@@ -1,4 +1,4 @@
-# Fake Kalshi 🎓
+# Fake Kalshi 
 
 A **practice prediction market** — a paper-trading simulator inspired by Kalshi-style
 event contracts. Every dollar is fake. Use it to sharpen your forecasting: put fake
